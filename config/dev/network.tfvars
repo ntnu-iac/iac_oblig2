@@ -1,4 +1,3 @@
-tjenester = {
-  ordre = { prefix = "10.10.0.0/24", runtime = "vm" }
-  meny  = { prefix = "10.10.1.0/24", runtime = "webapp" }
-}
+# Tom med vilje: network-stacken slipper ressursene sine (stacks/network/removed.tf).
+# Fila må finnes til både dev og prod har fått flyttingen, ellers kjøres ikke
+# stacken. Slettes sammen med stacken.

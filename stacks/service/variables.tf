@@ -38,29 +38,51 @@ variable "state_container_name" {
   type        = string
 }
 
-variable "tjenester" {
-  description = "Tjenestene og kjøremiljøet deres: \"vm\" eller \"webapp\"."
-  type        = map(string)
+variable "tjeneste" {
+  description = "Kortnavnet til tjenesten, f.eks. det som står i service-<x>.tfvars. Står i navnet på alle ressursene."
+  type        = string
 
   validation {
-    condition     = alltrue([for r in values(var.tjenester) : contains(["vm", "webapp"], r)])
-    error_message = "Kjøremiljøet må være vm eller webapp."
+    condition     = can(regex("^[a-z0-9]{2,8}$", var.tjeneste))
+    error_message = "tjeneste må være 2–8 små bokstaver eller tall (storage account-navnet er maks 24 tegn)."
   }
 }
 
+variable "runtime" {
+  description = "Kjøremiljøet: \"vm\" eller \"webapp\"."
+  type        = string
+
+  validation {
+    condition     = contains(["vm", "webapp"], var.runtime)
+    error_message = "runtime må være vm eller webapp."
+  }
+}
+
+variable "prefix" {
+  description = "Adresseområdet til subnettet. Må ligge inne i adresserommet til VNet-et i shared-network."
+  type        = string
+}
+
+variable "allow_http_from" {
+  description = "Hvem som får nå tjenesten på port 80."
+  type        = string
+  default     = "Internet"
+}
+
 variable "vm_size" {
-  description = "VM-størrelsen for tjenester med runtime vm."
+  description = "VM-størrelsen når runtime er vm."
   type        = string
   default     = "Standard_B2als_v2"
 }
 
 variable "ssh_public_key" {
-  description = "Offentlig SSH-nøkkel til VM-ene. Ikke hemmelig."
+  description = "Offentlig SSH-nøkkel til VM-en når runtime er vm. Ikke hemmelig."
   type        = string
+  default     = null
 }
 
 variable "webapp_sku" {
-  description = "SKU for App Service-planene til tjenester med runtime webapp."
+  description = "SKU for App Service-planen når runtime er webapp."
   type        = string
   default     = "B1"
 }
