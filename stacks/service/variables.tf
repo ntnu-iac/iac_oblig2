@@ -86,3 +86,18 @@ variable "webapp_sku" {
   type        = string
   default     = "B1"
 }
+
+variable "ekstra_regler" {
+  description = "Ekstra innkommende TCP-regler på tjenestens NSG, med regelnavnet som nøkkel."
+  type = map(object({
+    priority = number
+    port     = number
+    source   = string
+  }))
+  default = {}
+
+  validation {
+    condition     = alltrue([for r in values(var.ekstra_regler) : r.priority > 100 && r.priority < 4096])
+    error_message = "priority må være mellom 101 og 4095 (100 brukes av allow-http)."
+  }
+}
