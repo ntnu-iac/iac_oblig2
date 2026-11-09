@@ -1,7 +1,9 @@
 # Oblig 2 – utgangspunktet
 
-To tjenester, `ordre` og `meny`, rullet ut i dev og prod. Infrastrukturen er
-delt **horisontalt**: én stack per lag, og hver stack dekker begge tjenestene.
+Tre tjenester, `ordre`, `meny` og `betal`, rullet ut i dev og prod.
+Infrastrukturen er delt **vertikalt**: én delt nettverksstack, og én instans av
+`service`-stacken per tjeneste. Opprinnelig var den delt horisontalt (`network`,
+`data`, `app`); flyttingen er gjort med `removed` og `import` uten å rive noe.
 
 | Tjeneste | Nettverk | Data | Kjøring |
 |---|---|---|---|
@@ -12,23 +14,26 @@ Hva du skal gjøre med dette, står i obligteksten i Canvas.
 
 ```text
 config/
-  felles.tfvars          kortnavn og region – det eneste du endrer på dag 1
-  dev/  prod/            én .tfvars per stack per miljø
-modules/                 vnet, subnet, storage, keyvault, vm, webapp
+  felles.tfvars                  kortnavn og region
+  dev/  prod/
+    shared-network.tfvars        adresserommet til VNet-et
+    service-<tjeneste>.tfvars    én fil per tjeneste: runtime, subnett, regler
+modules/                         vnet, subnet, storage, keyvault, vm, webapp
 stacks/
-  network/               ressursgruppa, VNet-et og ett subnett per tjeneste
-  data/                  storage account og Key Vault per tjeneste
-  app/                   VM-en til ordre og web app-en til meny
-shared/backend.hcl       adressen til state-kontoen (den samme som i oblig 1)
+  shared-network/                ressursgruppa og VNet-et
+  service/                       ÉN definisjon: subnett med NSG, storage account,
+                                 Key Vault, og VM eller web app (runtime)
+shared/backend.hcl               adressen til state-kontoen
 scripts/
-  kjor.sh                plan eller apply for alle stackene i ett miljø
-  valider.sh             porten: fmt, validate, TFLint, Checkov
+  kjor.sh                        plan eller apply for alle stackene i ett miljø
+  valider.sh                     porten: fmt, validate, TFLint, Checkov
 .github/workflows/
-  ci.yml                 på hver PR: porten, og plan mot dev og prod
-  cd-dev.yml             merge til main → dev
-  cd-prod.yml            for hånd, med SHA-en fra dev → prod (med godkjenning)
-reset.sh / Reset.ps1     tilbake til utgangspunktet
+  ci.yml                         på hver PR: porten, og plan mot dev og prod
+  cd-dev.yml                     merge til main → dev
+  cd-prod.yml                    for hånd, med SHA-en fra dev → prod (med godkjenning)
 ```
+
+En ny tjeneste er én ny fil per miljø: `config/<miljø>/service-<navn>.tfvars`.
 
 ## Slik finner workflowen stackene
 
