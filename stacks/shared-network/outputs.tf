@@ -4,7 +4,7 @@ output "resource_group_name" {
 }
 
 output "resource_group_id" {
-  description = "ID-en til ressursgruppa. Service-stacken bygger import-ID-er fra den."
+  description = "ID-en til ressursgruppa, for stacker som trenger å bygge ressurs-ID-er."
   value       = azurerm_resource_group.this.id
 }
 
